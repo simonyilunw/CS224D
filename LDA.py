@@ -39,73 +39,70 @@ def clean_corpus(statuses,s_words):
 
 if __name__ == '__main__':
 
-	user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',', escapechar = '/', quotechar='"', error_bad_lines = False)
-	user_per = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',', escapechar = '\\', quotechar='"', error_bad_lines = False)
+	user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',', escapechar = '/', quotechar='"')
+	# user_per = pd.read_csv(os.path.join('data', 'sample_personality'), sep = ',', escapechar = '\\', quotechar='"', error_bad_lines = False)
+
+	get_status_corpus(user_status)
+	
 
 
-	agg = dict(list(Data.user_status_df.dropna().groupby('userid')))
-185                 num_users = len(agg)
-186                 #print '=================='
-187                 #print list(agg['status_update'])[0:2]
-188                 #print agg
-189                 #print agg.columns
-190                 user_index_to_id = {}
-191                 counter = 0
-192                 lis = []
-193                 for i,row in agg.iteritems():
-194                         #for status in row['status_update']:
-195                         #if(counter < 5):
-196                         #       print i
-197                         #       print row
-198                         user_index_to_id[counter] = i
-199                         counter +=1
-200                         lis.append(" ".join(list(row['status_update'])))
-201                         #lis.append(status)
-202                         #print row['status_update']
-203                 print 'Number of users is ', num_users
-204                 return lis,user_index_to_id
+def get_status_corpus():
+	agg = dict(list(user_status.dropna().groupby('userid')))
+	num_users = len(agg)
+
+	user_index_to_id = {}
+	counter = 0
+	lis = []
+	for i,row in agg.iteritems():
+
+		user_index_to_id[counter] = i
+		counter +=1
+		lis.append(" ".join(list(row['status_update'])))
+	     
+	print 'Number of users is ', num_users
+	return lis,user_index_to_id
 
 
 
- def run_analysis_on_LDA_status():
- 278         statuses,index_to_user_id = Data.get_status_corpus()
- 279         s_words = set()
- 280         corpus,df,dictionary,tf = clean_corpus(statuses,s_words)
- 281         freq_words = get_freq_words(df,tf, len(statuses))
- 282         for word in freq_words:
- 283                 s_words.add(word)
- 284         corpus,df,dictionary, tf = clean_corpus(statuses,s_words)
- 285         print "DICTIONARY MDE"
- 286         alphas = (0.01, 0.1, 1, 10)
- 287         for a in alphas:
- 288                 num_topics_to_perplexity = {}
- 289                 lis = list(range(50))
- 290                 results = multiprocessing.Pool(10).map(func_mapper, itertools.izip(itertools.repeat((corpus, a)), lis))
- 291                 w = csv.writer(open(datapath+'perplexity_scores_' + str((int)(100*a)) + '.csv', "w"))
- 292                 for result in results:
- 293                         w.writerow([result[0], result[1]])
+def run_analysis_on_LDA_status():
+	statuses,index_to_user_id = Data.get_status_corpus()
+	s_words = set()
+	corpus,df,dictionary,tf = clean_corpus(statuses,s_words)
+	freq_words = get_freq_words(df,tf, len(statuses))
+	for word in freq_words:
+		s_words.add(word)
+	corpus,df,dictionary, tf = clean_corpus(statuses,s_words)
+	print "DICTIONARY MDE"
+	alphas = (0.01, 0.1, 1, 10)
+	for a in alphas:
+		num_topics_to_perplexity = {}
+		lis = list(range(50))
+		results = multiprocessing.Pool(10).map(func_mapper, itertools.izip(itertools.repeat((corpus, a)), lis))
+		w = csv.writer(open(datapath+'perplexity_scores_' + str((int)(100*a)) + '.csv', "w"))
+		for result in results:
+			w.writerow([result[0], result[1]])
 
 
 def get_freq_words(df,tf,n_docs, lda=[], dictionary = {}):
-  93         print "REMOVING WORDS"
-  94         to_remove = set()
-  95         for word in df.keys():
-  96                 if df[word] > (n_docs*.1):
-  97                         to_remove.add(word)
-  98                 if df[word] < 10:
-  99                         to_remove.add(word)
- 100         temp = []
- 101         for word in tf.keys():
- 102                 heapq.heappush(temp, (-tf[word], word))
- 103         for i in range(500):
- 104                 to_remove.add(heapq.heappop(temp)[1])
- 105 
- 106         for key,val in dictionary.iteritems():
- 107                 prob = lda[[[(key, 1)]]]
- 108                 #print prob
- 109                 if len(prob)<1:
- 110                         to_remove.add(val)
- 111                 if len(prob)>3:
- 112                         to_remove.add(val)
- 113         print to_remove
- 114         return to_remove
+	print "REMOVING WORDS"
+	to_remove = set()
+	for word in df.keys():
+		if df[word] > (n_docs*.1):
+			to_remove.add(word)
+		if df[word] < 10:
+			to_remove.add(word)
+	temp = []
+	for word in tf.keys():
+		heapq.heappush(temp, (-tf[word], word))
+	for i in range(500):
+		to_remove.add(heapq.heappop(temp)[1])
+
+	for key,val in dictionary.iteritems():
+		prob = lda[[[(key, 1)]]]
+
+		if len(prob)<1:
+			to_remove.add(val)
+		if len(prob)>3:
+			to_remove.add(val)
+	print to_remove
+	return to_remove
