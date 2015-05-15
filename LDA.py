@@ -39,7 +39,7 @@ def clean_corpus(statuses,s_words):
 
 if __name__ == '__main__':
 
-	user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',', escapechar = '/', quotechar='"')
+	user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',')#, escapechar = '/', quotechar='"')
 	# user_per = pd.read_csv(os.path.join('data', 'sample_personality'), sep = ',', escapechar = '\\', quotechar='"', error_bad_lines = False)
 
 	get_status_corpus(user_status)

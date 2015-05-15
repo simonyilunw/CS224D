@@ -434,11 +434,11 @@ class Data:
 
 		sample_status = Data.user_status_df[Data.user_status_df['userid'].isin(u_50)]	
 
-		sample_status.to_csv('sample_status', quotechar = '"')
+		sample_status.to_csv('data/sample_status', quotechar = '"'  )
 		print 'Num. of status %d' % len(sample_status)
 
 		personality = personality[personality['userid'].isin(u_50)]
-		personality.to_csv('sample_personality', quotechar = '"')
+		personality.to_csv('data/sample_personality', quotechar = '"')
 
 		
 		#List of pages with more than 50 likes
