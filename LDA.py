@@ -99,7 +99,7 @@ def get_status_corpus(user_status):
 
 
 
-def run_analysis_on_LDA_status():
+def run_analysis_on_LDA_status(																								):
 	user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',')#, escapechar = '/', quotechar='"')
 	user_per = pd.read_csv(os.path.join('data', 'sample_personality'), sep = ',')#, escapechar = '\\', quotechar='"', error_bad_lines = False)
 	statuses = get_status_corpus(user_status)
