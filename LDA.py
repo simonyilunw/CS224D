@@ -3,8 +3,10 @@ import pandas as pd
 import re
 import os
 import multiprocessing
+import math
 
 def clean_corpus(statuses,s_words):
+	pass
 	# df = {}
 	# tf = {}
 	# set_df = set()
@@ -36,16 +38,7 @@ def clean_corpus(statuses,s_words):
 	# print "Dictionary Made"
 	# corpus = [dictionary.doc2bow(token) for token in tokenized_clean]
 	# return corpus,df,dictionary,tf
-
-	for i in xrange(len(statuses)):
-		status = statuses[i]
-		# print status
-		status = re.sub(r'[^a-zA-Z\s]', '', status)
-		status = re.sub(r'([a-z])\1\1+', r'\1', status)
-		status = status.lower()
-		statuses[i] = status
-
-	return statuses
+	
 
 
 
@@ -68,17 +61,53 @@ def get_status_corpus(user_status):
 	     
 	# print 'Number of users is ', num_users
 	# return lis,user_index_to_id
-	return list(user_status['status_update'])
+	statuses =  list(user_status['status_update'])
+
+	corpus = []
+	for i in xrange(len(statuses)):
+		status = statuses[i]
+		if isinstance(status, str) :
+			status = re.sub(r'[^a-zA-Z\s]', '', status)
+			status = re.sub(r'([a-z])\1\1+', r'\1', status)
+			status = status.lower()
+			corpus.append(status)
+		# else:
+		# 	print status
+
+
+	stoplist = set('for a of the and to in'.split())
+	corpus = [[word for word in document.split() if word not in stoplist]
+		for document in corpus]
+
+
+	from collections import defaultdict
+	frequency = defaultdict(int)
+	for text in corpus:
+		for token in text:
+			frequency[token] += 1
+
+	corpus = [[token for token in text if frequency[token] > 1]
+	 for text in corpus]
+
+	dictionary = gensim.corpora.Dictionary(corpus)
+	dictionary.save('/data/lda.dict')
+
+	corpus = [dictionary.doc2bow(text) for text in corpus]
+	gensim.corpora.MmCorpus.serialize('/data/lda.mm', corpus)
+
+	return corpus
 
 
 
-def run_analysis_on_LDA_status(user_status):
-	print len(user_status)
+def run_analysis_on_LDA_status():
+	user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',')#, escapechar = '/', quotechar='"')
+	user_per = pd.read_csv(os.path.join('data', 'sample_personality'), sep = ',')#, escapechar = '\\', quotechar='"', error_bad_lines = False)
 	statuses = get_status_corpus(user_status)
 
-	s_words = set()
-	corpus = clean_corpus(statuses,s_words)
-	lda = gensim.models.ldamodel.LdaModel(corpus, num_topics = 50)
+	id2word = gensim.corpora.Dictionary.load_from_text('/data/lda.dict')
+	mm = gensim.corpora.MmCorpus('/data/lda.mm')
+	print mm
+	lda = gensim.models.ldamodel.LdaModel(corpus=mm, id2word=id2word, num_topics=100, update_every=1, chunksize=1000, passes=1)
 	lda.save('lda.model')
 	lda.show_topics(num_topics = 50)
 	# freq_words = get_freq_words(df,tf, len(statuses))
@@ -123,7 +152,6 @@ def get_freq_words(df,tf,n_docs, lda=[], dictionary = {}):
 
 if __name__ == '__main__':
 
-	user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',')#, escapechar = '/', quotechar='"')
-	user_per = pd.read_csv(os.path.join('data', 'sample_personality'), sep = ',')#, escapechar = '\\', quotechar='"', error_bad_lines = False)
+	
 
-	run_analysis_on_LDA_status(user_status)
+	run_analysis_on_LDA_status()
