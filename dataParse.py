@@ -38,7 +38,7 @@ def get_status_corpus(user_status):
 
 f = open('small_out', 'w')
 dictionary={}
-user_status = pd.read_csv(os.path.join('sample_status'), sep = ',')#, escapechar = '/', quotechar='"')
+user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',')#, escapechar = '/', quotechar='"')
 statuses = get_status_corpus(user_status)
 total=0
 for status in statuses:
