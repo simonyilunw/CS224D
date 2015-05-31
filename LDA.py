@@ -78,7 +78,7 @@ def get_status_corpus(user_status):
 	stoplist = set('for a of the and to in'.split())
 	corpus = [[word for word in document.split() if word not in stoplist]
 		for document in corpus]
-
+	print 'tokenized'
 
 	from collections import defaultdict
 	frequency = defaultdict(int)
@@ -86,26 +86,30 @@ def get_status_corpus(user_status):
 		for token in text:
 			frequency[token] += 1
 
-	corpus = [[token for token in text if frequency[token] > 1]
+	corpus = [[token for token in text if frequency[token] > 3]
 	 for text in corpus]
+	
+	print 'remove unfrequent words'
 
 	dictionary = gensim.corpora.Dictionary(corpus)
-	dictionary.save('/data/lda.dict')
+	dictionary.save('data/lda.dict')
+	print 'dictionary'
 
 	corpus = [dictionary.doc2bow(text) for text in corpus]
-	gensim.corpora.MmCorpus.serialize('/data/lda.mm', corpus)
-
+	gensim.corpora.MmCorpus.serialize('data/lda.mm', corpus)
+	print 'text corpus'
 	return corpus
 
 
 
 def run_analysis_on_LDA_status(																								):
-	user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',')#, escapechar = '/', quotechar='"')
-	user_per = pd.read_csv(os.path.join('data', 'sample_personality'), sep = ',')#, escapechar = '\\', quotechar='"', error_bad_lines = False)
-	statuses = get_status_corpus(user_status)
+	#user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',')#, escapechar = '/', quotechar='"')
+	#user_per = pd.read_csv(os.path.join('data', 'sample_personality'), sep = ',')#, escapechar = '\\', quotechar='"', error_bad_lines = False)
+	#statuses = get_status_corpus(user_status)
+	
 
-	id2word = gensim.corpora.Dictionary.load_from_text('/data/lda.dict')
-	mm = gensim.corpora.MmCorpus('/data/lda.mm')
+	id2word = gensim.corpora.Dictionary.load('data/lda.dict')
+	mm = gensim.corpora.MmCorpus('data/lda.mm')
 	print mm
 	lda = gensim.models.ldamodel.LdaModel(corpus=mm, id2word=id2word, num_topics=100, update_every=1, chunksize=1000, passes=1)
 	lda.save('lda.model')
