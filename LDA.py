@@ -87,7 +87,7 @@ def get_status_corpus(user_status):
 		for token in text:
 			frequency[token] += 1
 
-	corpus = [[token for token in text if frequency[token] > 10 and freqency[token] < 5000]
+	corpus = [[token for token in text if frequency[token] > 10 and frequency[token] < 5000]
 	 for text in corpus]
 	
 	print 'remove unfrequent and frequent words'
@@ -115,7 +115,7 @@ def run_analysis_on_LDA_status(preprocess=False):
 		print mm
 		#lda = gensim.models.ldamodel.LdaModel(corpus=mm, id2word=id2word, num_topics=20, update_every=1, chunksize=1000, passes=1)
 		lda = gensim.models.LdaMulticore(corpus=mm, num_topics=20, id2word=id2word, workers=8)
-		lda.save('lda.model')
+		lda.save('model/lda.model')
 		lda.show_topics(num_topics = 20)
 
 	# freq_words = get_freq_words(df,tf, len(statuses))
