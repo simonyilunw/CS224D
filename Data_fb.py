@@ -433,12 +433,18 @@ class Data:
 		print 'Num. of users %d' % len(u_50)
 
 		sample_status = Data.user_status_df[Data.user_status_df['userid'].isin(u_50)]	
+		good_status = []
+		for i, row in sample_status.iterrows():
+			if len(str(row['status_update']).split()) > 20:
+				good_status.append(i)
 
-		#sample_status.to_csv('data/sample_status', quotechar = '"'  )
+		sample_status = sample_status[sample_status.index.isin(good_status)]
+
+		sample_status.to_csv('data/sample_status', quotechar = '"'  )
 		print 'Num. of status %d' % len(sample_status)
 
 		personality = personality[personality['userid'].isin(u_50)]
-		#personality.to_csv('data/sample_personality', quotechar = '"')
+		personality.to_csv('data/sample_personality', quotechar = '"')
 
 		
 		#List of pages with more than 50 likes
@@ -547,5 +553,5 @@ class Data:
 ##print Data.aggregate_stats_for_users(['99fbf129582ee8fbd0b1c5fe2d0aaabf','965e48b4a4408b08b01adfbf9dc1571b'],[.2,.3])
 #Data.get_data_for_basic_model(True, 10)
 #Data.get_data_for_basic_model(True, 20)
-Data.get_data_for_basic_model(False, 50)
+Data.get_data_for_basic_model(False, 200)
 

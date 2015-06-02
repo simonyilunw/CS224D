@@ -86,7 +86,7 @@ def get_status_corpus(user_status):
 		for token in text:
 			frequency[token] += 1
 
-	corpus = [[token for token in text if frequency[token] > 3]
+	corpus = [[token for token in text if frequency[token] > 10]
 	 for text in corpus]
 	
 	print 'remove unfrequent words'
@@ -103,17 +103,18 @@ def get_status_corpus(user_status):
 
 
 def run_analysis_on_LDA_status(																								):
-	#user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',')#, escapechar = '/', quotechar='"')
-	#user_per = pd.read_csv(os.path.join('data', 'sample_personality'), sep = ',')#, escapechar = '\\', quotechar='"', error_bad_lines = False)
-	#statuses = get_status_corpus(user_status)
+	user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',')#, escapechar = '/', quotechar='"')
+	user_per = pd.read_csv(os.path.join('data', 'sample_personality'), sep = ',')#, escapechar = '\\', quotechar='"', error_bad_lines = False)
+	statuses = get_status_corpus(user_status)
 	
 
-	id2word = gensim.corpora.Dictionary.load('data/lda.dict')
-	mm = gensim.corpora.MmCorpus('data/lda.mm')
-	print mm
-	lda = gensim.models.ldamodel.LdaModel(corpus=mm, id2word=id2word, num_topics=100, update_every=1, chunksize=1000, passes=1)
-	lda.save('lda.model')
-	lda.show_topics(num_topics = 50)
+	#id2word = gensim.corpora.Dictionary.load('data/lda.dict')
+	#mm = gensim.corpora.MmCorpus('data/lda.mm')
+	#print mm
+	#lda = gensim.models.ldamodel.LdaModel(corpus=mm, id2word=id2word, num_topics=100, update_every=1, chunksize=1000, passes=1)
+	#lda.save('lda.model')
+	#lda.show_topics(num_topics = 50)
+
 	# freq_words = get_freq_words(df,tf, len(statuses))
 	# for word in freq_words:
 	# 	s_words.add(word)
