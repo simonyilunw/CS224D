@@ -4,6 +4,7 @@ import re
 import os
 import multiprocessing
 import math
+import logging
 
 def clean_corpus(statuses,s_words):
 	pass
@@ -86,10 +87,10 @@ def get_status_corpus(user_status):
 		for token in text:
 			frequency[token] += 1
 
-	corpus = [[token for token in text if frequency[token] > 10]
+	corpus = [[token for token in text if frequency[token] > 10 and freqency[token] < 5000]
 	 for text in corpus]
 	
-	print 'remove unfrequent words'
+	print 'remove unfrequent and frequent words'
 
 	dictionary = gensim.corpora.Dictionary(corpus)
 	dictionary.save('data/lda.dict')
@@ -102,18 +103,20 @@ def get_status_corpus(user_status):
 
 
 
-def run_analysis_on_LDA_status(																								):
-	user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',')#, escapechar = '/', quotechar='"')
-	user_per = pd.read_csv(os.path.join('data', 'sample_personality'), sep = ',')#, escapechar = '\\', quotechar='"', error_bad_lines = False)
-	statuses = get_status_corpus(user_status)
-	
+def run_analysis_on_LDA_status(preprocess=False):
+	if preprocess == True:
+		user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',')#, escapechar = '/', quotechar='"')
+		user_per = pd.read_csv(os.path.join('data', 'sample_personality'), sep = ',')#, escapechar = '\\', quotechar='"', error_bad_lines = False)
+		statuses = get_status_corpus(user_status)
+	else:	
 
-	#id2word = gensim.corpora.Dictionary.load('data/lda.dict')
-	#mm = gensim.corpora.MmCorpus('data/lda.mm')
-	#print mm
-	#lda = gensim.models.ldamodel.LdaModel(corpus=mm, id2word=id2word, num_topics=100, update_every=1, chunksize=1000, passes=1)
-	#lda.save('lda.model')
-	#lda.show_topics(num_topics = 50)
+		id2word = gensim.corpora.Dictionary.load('data/lda.dict')
+		mm = gensim.corpora.MmCorpus('data/lda.mm')
+		print mm
+		#lda = gensim.models.ldamodel.LdaModel(corpus=mm, id2word=id2word, num_topics=20, update_every=1, chunksize=1000, passes=1)
+		lda = gensim.models.LdaMulticore(corpus=mm, num_topics=20, id2word=id2word, workers=8)
+		lda.save('lda.model')
+		lda.show_topics(num_topics = 20)
 
 	# freq_words = get_freq_words(df,tf, len(statuses))
 	# for word in freq_words:
@@ -156,7 +159,5 @@ def get_freq_words(df,tf,n_docs, lda=[], dictionary = {}):
 
 
 if __name__ == '__main__':
-
-	
-
-	run_analysis_on_LDA_status()
+	logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+	run_analysis_on_LDA_status(preprocess=True)

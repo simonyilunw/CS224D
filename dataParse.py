@@ -36,7 +36,7 @@ def get_status_corpus(user_status):
 		# 	print status
 	return corpus
 
-f = open('small_out', 'w')
+f = open('data/rnn_input', 'w')
 dictionary={}
 user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',')#, escapechar = '/', quotechar='"')
 statuses = get_status_corpus(user_status)
@@ -92,7 +92,16 @@ for status in statuses:
                 #                dictionary[c]=dictionary[c]+1
 f.close()
 print total
-#f = open('dictionary', 'w')
+import operator
+########################################
+#number of our terms 9694
+#minimal occurrence 200
+#number of total tokens 58500634
+#number of our tokens 55261185
+minimal_occurrence = 200
+f = open('data/dictionary', 'w')
+fp = open('data/dictionary_other', 'w')
+
 #x=[]
 #count=0
 #import operator
@@ -106,15 +115,36 @@ print total
 #f.close()
 #plt.plot(*zip(*x))
 x = {}
+
+origin = dictionary
+dictionary = {term:termcount for (term, termcount) in dictionary.items() if termcount >= minimal_occurrence}
+
 for (term, termcount) in dictionary.items():
 	if termcount in x:
 		x[termcount] += 1
 	else:
 		x[termcount] = 1
+dict_sort = sorted(dictionary.items(), key=operator.itemgetter(1),reverse=True)
 
-print x.items()
+for (term, termcount) in dict_sort:
+	f.write(term)
+	f.write(' '+(str)(termcount))
+	f.write(' '+(str)(((float)(termcount)/(float)(total)))+'\n')
 
-plt.bar(*zip(*x.items()))
+for (term, termcount) in origin.items():
+	if term not in dictionary:
+		fp.write(term)
+		fp.write(' '+(str)(termcount))
+		fp.write(' '+(str)(((float)(termcount)/(float)(total)))+'\n')
+
+
+fp.close()
+f.close()
+x = sorted(x.items(), key=operator.itemgetter(0), reverse=True)
+print x
+
+
+plt.bar(*zip(*x))
 
 plt.show()
-plt.savefig('dictionary.png')
+plt.savefig('data/dictionary.png')
