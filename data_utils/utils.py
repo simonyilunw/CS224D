@@ -62,12 +62,12 @@ def load_dataset(fname):
         cur = []
         for line in fd:
             # new sentence on -DOCSTART- or blank line
-            if re.match(r"-DOCSTART-.+", line) or (len(line.strip()) == 0):
+            if line[0]=='-' or (len(line.strip()) == 0):
                 if len(cur) > 0:
                     docs.append(cur)
                 cur = []
             else: # read in tokens
-                cur.append(line.strip().split("\t",1))
+                cur.append((line.rstrip('\n'),'N'))
         # flush running buffer
         docs.append(cur)
     return docs
