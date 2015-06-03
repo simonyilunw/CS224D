@@ -94,11 +94,11 @@ f.close()
 print total
 import operator
 ########################################
-#number of our terms 9694
+#number of our terms 5273
 #minimal occurrence 200
 #number of total tokens 58500634
-#number of our tokens 55261185
-minimal_occurrence = 200
+#number of our tokens 53865533
+minimal_occurrence = 500
 f = open('data/dictionary', 'w')
 fp = open('data/dictionary_other', 'w')
 
@@ -142,6 +142,8 @@ fp.close()
 f.close()
 x = sorted(x.items(), key=operator.itemgetter(0), reverse=True)
 print x
+print sum([num for termcount, num in x])
+print sum([termcount * num for termcount, num in x])
 
 
 plt.bar(*zip(*x))
