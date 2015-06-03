@@ -87,7 +87,7 @@ def get_status_corpus(user_status):
 		for token in text:
 			frequency[token] += 1
 
-	corpus = [[token for token in text if frequency[token] > 10 and frequency[token] < 5000]
+	corpus = [[token for token in text if frequency[token] > 10 and frequency[token] < 10000 and len(token) >= 3]
 	 for text in corpus]
 	
 	print 'remove unfrequent and frequent words'
@@ -160,4 +160,4 @@ def get_freq_words(df,tf,n_docs, lda=[], dictionary = {}):
 
 if __name__ == '__main__':
 	logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-	run_analysis_on_LDA_status(preprocess=True)
+	run_analysis_on_LDA_status(preprocess = True)
