@@ -23,6 +23,8 @@ print 'load dictionary done'
 docs = du.load_dataset('data/rnn_input')
 S_train = du.docs_to_indices(docs, word_to_num)
 X_train, Y_train = du.seqs_to_lmXY(S_train)
+X_train = X_train[:300]
+Y_train = Y_train[:300]
 print 'load data done'
 
 
@@ -37,12 +39,11 @@ print 'load data done'
 #X_test, Y_test = du.seqs_to_lmXY(S_test)
 
 hdim = 100 # dimension of hidden layer = dimension of word vectors
-random.seed(10)
+#random.seed(10)
 L0 = zeros((vocabsize, hdim)) # replace with random init, 
                               # or do in RNNLM.__init__()
-model = RNNLM(L0, U0 = L0, alpha=0.1, rseed=10, bptt=4)
+model = RNNLM(L0, U0 = L0, alpha=0.1, rseed=10, bptt=3)
 
-ntrain = len(Y_train)
 nepoch = 5
 N = nepoch * len(Y_train)
 k = 5 # minibatch size
@@ -51,7 +52,7 @@ idx=[]
 print X_train.size
 for i in range(N/k):
     idx.append(random.choice(len(Y_train),k))
-model.train_sgd(X_train,Y_train,idx,None,100,100,None)
+model.train_sgd(X = X_train, y = Y_train, idxiter = idx, printevery = 100, costevery = 100)
 
 #dev_loss = model.compute_mean_loss(X_dev, Y_dev)
 

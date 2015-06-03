@@ -114,9 +114,9 @@ def run_analysis_on_LDA_status(preprocess=False):
 		mm = gensim.corpora.MmCorpus('data/lda.mm')
 		print mm
 		#lda = gensim.models.ldamodel.LdaModel(corpus=mm, id2word=id2word, num_topics=20, update_every=1, chunksize=1000, passes=1)
-		lda = gensim.models.LdaMulticore(corpus=mm, num_topics=20, id2word=id2word, workers=8)
+		lda = gensim.models.LdaMulticore(corpus=mm, num_topics=45, id2word=id2word, workers=8, passes = 5)
 		lda.save('model/lda.model')
-		lda.show_topics(num_topics = 20)
+		lda.show_topics(num_topics = 45)
 
 	# freq_words = get_freq_words(df,tf, len(statuses))
 	# for word in freq_words:
@@ -160,4 +160,4 @@ def get_freq_words(df,tf,n_docs, lda=[], dictionary = {}):
 
 if __name__ == '__main__':
 	logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-	run_analysis_on_LDA_status(preprocess = True)
+	run_analysis_on_LDA_status(preprocess = False)
