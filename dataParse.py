@@ -46,7 +46,8 @@ user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',')#, es
 statuses = get_status_corpus(user_status)
 print 'data cleaning done'
 personality = user_status[['ope', 'con', 'ext', 'agr', 'neu']].values
-topic = np.random.rand(len(user_status), 40)
+#topic = np.random.rand(len(user_status), 40)
+topic = np.load('data/doc_lda.npy')
 h0 = np.hstack((personality, topic))
 print h0.shape
 h0_train = []
