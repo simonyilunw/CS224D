@@ -270,6 +270,12 @@ class NNBase(object):
         self._acc_grads(x, y)
         self._apply_grad_acc(alpha)
 
+    def train_point_sgd_rnnpt(self, x, y, h0, alpha):
+        """Generic single-point SGD"""
+        self._reset_grad_acc()
+        self._acc_grads(x, y, h0)
+        self._apply_grad_acc(alpha)
+
     def train_minibatch_sgd(self, X, y, alpha):
         """
         Generic minibatch SGD
@@ -277,6 +283,15 @@ class NNBase(object):
         self._reset_grad_acc()
         for i in range(len(y)):
             self._acc_grads(X[i], y[i])
+        self._apply_grad_acc(alpha)
+
+    def train_minibatch_sgd_rnnpt(self, X, y, h0, alpha):
+        """
+        Generic minibatch SGD
+        """
+        self._reset_grad_acc()
+        for i in range(len(y)):
+            self._acc_grads(X[i], y[i], h[i])
         self._apply_grad_acc(alpha)
 
 
@@ -379,6 +394,12 @@ class NNBase(object):
         """
         return self.compute_mean_loss(X, y)
 
+    def compute_display_loss_rnnpt(self, X, y, h0):
+        """
+        Optional alternative loss function for printing or diagnostics.
+        """
+        return self.compute_mean_loss(X, y, h0)
+
     def train_sgd(self, X, y,
                   idxiter=None, alphaiter=None,
                   printevery=10000, costevery=10000,
@@ -411,6 +432,57 @@ class NNBase(object):
                     self.train_point_sgd(X[idx], y[idx], alpha)
                 else:
                     self.train_point_sgd(X[idx], y[idx], alpha)
+
+                counter += 1
+        except KeyboardInterrupt as ke:
+            """
+            Allow manual early termination.
+            """
+            print "SGD Interrupted: saw %d examples in %.02f seconds." % (counter, time.time() - t0)
+            return costs
+
+        # Wrap-up
+        #if devidx != None:
+        #    cost = self.compute_display_loss(X[devidx], y[devidx])
+        #else: cost = self.compute_display_loss(X, y)
+        #costs.append((counter, cost))
+        #print "  [%d]: mean loss %g" % (counter, cost)
+        print "SGD complete: %d examples in %.02f seconds." % (counter, time.time() - t0)
+
+        return costs
+
+    def train_sgd_rnnpt(self, X, y, h0,
+                  idxiter=None, alphaiter=None,
+                  printevery=10000, costevery=10000,
+                  devidx=None):
+        if idxiter == None: # default training schedule
+            idxiter = xrange(len(y))
+        if alphaiter == None: # default training schedule
+            alphaiter = itertools.repeat(self.alpha)
+
+        costs = []
+        counter = 0
+        t0 = time.time()
+
+        try:
+            print "Begin SGD..."
+            for idx, alpha in itertools.izip(idxiter, alphaiter):
+                if counter % printevery == 0:
+                    print "  Seen %d in %.02f s" % (counter, time.time() - t0)
+                if counter % costevery == 0:
+                    if devidx != None:
+                        cost = self.compute_display_loss_rnnpt(X[devidx], y[devidx], h0[devidx])
+                    else: cost = self.compute_display_loss_rnnpt(X, y, h0)
+                    costs.append((counter, cost))
+                    print "  [%d]: mean loss %g" % (counter, cost)
+
+                if hasattr(idx, "__iter__") and len(idx) > 1: # if iterable
+                    self.train_minibatch_sgd_rnnpt(X[idx], y[idx], h[idx], alpha)
+                elif hasattr(idx, "__iter__") and len(idx) == 1: # single point
+                    idx = idx[0]
+                    self.train_point_sgd_rnnpt(X[idx], y[idx], h[idx], alpha)
+                else:
+                    self.train_point_sgd_rnnpt(X[idx], y[idx], h[idx], alpha)
 
                 counter += 1
         except KeyboardInterrupt as ke:

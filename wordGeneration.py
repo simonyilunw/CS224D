@@ -4,7 +4,7 @@ from matplotlib.pyplot import *
 
 matplotlib.rcParams['savefig.dpi'] = 100
 
-from rnnlm import RNNLM
+from rnnlm import RNNLM, RNNPT
 from data_utils import utils as du
 import pandas as pd
 import itertools
@@ -46,30 +46,92 @@ print 'number of training data %d' % len(Y_train)
 #docs = du.load_dataset('data/lm/ptb-test.txt')
 #S_test = du.docs_to_indices(docs, word_to_num)
 #X_test, Y_test = du.seqs_to_lmXY(S_test)
+model = "RNNLM"
 
-hdim = 45 # dimension of hidden layer = dimension of word vectors
-#random.seed(10)
-L0 = zeros((vocabsize, hdim)) # replace with random init, 
-                              # or do in RNNLM.__init__()
-model = RNNLM(L0, U0 = L0, alpha=0.1,  bptt=3)
+if model == "RNNLM"
+	hdim = 40 # dimension of hidden layer = dimension of word vectors
+	#random.seed(10)
+	L0 = zeros((vocabsize, hdim)) # replace with random init, 
+	                              # or do in RNNLM.__init__()
+	model = RNNLM(L0, U0 = L0, alpha=0.1,  bptt=3)
 
-nepoch = 1
-N = nepoch * len(Y_train)
-k = 5 # minibatch size
-#random.seed(10)
-#idx=[]
-#print X_train.size
-#for i in range(N/k):
-#    idx.append(random.choice(len(Y_train),k))
-idx = epochiter(len(Y_train), nepoch)
-model.train_sgd(X = X_train, y = Y_train, idxiter = idx, printevery = 500, costevery = 10000000)
+	nepoch = 1
+	N = nepoch * len(Y_train)
+	k = 5 # minibatch size
+	#random.seed(10)
+	#idx=[]
+	#print X_train.size
+	#for i in range(N/k):
+	#    idx.append(random.choice(len(Y_train),k))
+	idx = epochiter(len(Y_train), nepoch)
+	model.train_sgd(X = X_train, y = Y_train, idxiter = idx, printevery = 500, costevery = 500)
 
-#dev_loss = model.compute_mean_loss(X_dev, Y_dev)
+	#dev_loss = model.compute_mean_loss(X_dev, Y_dev)
+	if not os.path.exists("model/" + model):
+		os.makedirs("model/" + model)
 
-#print "Unadjusted: %.03f" % exp(dev_loss)
-#print "Adjusted for missing vocab: %.03f" % exp(adjust_loss(dev_loss, fraction_lost))
-save("model/rnnlm.L.npy", model.sparams.L)
-save("model/rnnlm.U.npy", model.params.U)
-save("model/rnnlm.H.npy", model.params.H)
+	#print "Unadjusted: %.03f" % exp(dev_loss)
+	#print "Adjusted for missing vocab: %.03f" % exp(adjust_loss(dev_loss, fraction_lost))
+	save("model/" + model + "/rnnlm.L.npy", model.sparams.L)
+	save("model/" + model + "/rnnlm.U.npy", model.params.U)
+	save("model/" + model + "/rnnlm.H.npy", model.params.H)
 
 
+elif model == "RNNPT":
+	hdim = 40 # dimension of hidden layer = dimension of word vectors
+	#random.seed(10)
+	L0 = zeros((vocabsize, hdim)) # replace with random init, 
+	                              # or do in RNNLM.__init__()
+	model = RNNPT(L0, U0 = L0, alpha=0.1,  bptt=3)
+
+	nepoch = 1
+	N = nepoch * len(Y_train)
+	k = 5 # minibatch size
+	#random.seed(10)
+	#idx=[]
+	#print X_train.size
+	#for i in range(N/k):
+	#    idx.append(random.choice(len(Y_train),k))
+	h0_train = pickle.load(open('data/h0_train', 'rb'))
+	idx = epochiter(len(Y_train), nepoch)
+	model.train_sgd_rnnpt(X = X_train, y = Y_train, h0 = h0_train, idxiter = idx, printevery = 500, costevery = 500)
+
+	#dev_loss = model.compute_mean_loss(X_dev, Y_dev)
+	if not os.path.exists("model/" + model):
+		os.makedirs("model/" + model)
+
+	#print "Unadjusted: %.03f" % exp(dev_loss)
+	#print "Adjusted for missing vocab: %.03f" % exp(adjust_loss(dev_loss, fraction_lost))
+	save("model/" + model + "/rnnlm.L.npy", model.sparams.L)
+	save("model/" + model + "/rnnlm.U.npy", model.params.U)
+	save("model/" + model + "/rnnlm.H.npy", model.params.H)
+
+
+elif model == "RNNPTONE":
+	hdim = 40 # dimension of hidden layer = dimension of word vectors
+	#random.seed(10)
+	L0 = zeros((vocabsize, hdim)) # replace with random init, 
+	                              # or do in RNNLM.__init__()
+	model = RNNPT(L0, U0 = L0, alpha=0.1,  bptt=3)
+
+	nepoch = 1
+	N = nepoch * len(Y_train)
+	k = 5 # minibatch size
+	#random.seed(10)
+	#idx=[]
+	#print X_train.size
+	#for i in range(N/k):
+	#    idx.append(random.choice(len(Y_train),k))
+	h0_train = pickle.load(open('data/h0_train', 'rb'))
+	idx = epochiter(len(Y_train), nepoch)
+	model.train_sgd_rnnpt(X = X_train, y = Y_train, h0 = h0_train, idxiter = idx, printevery = 500, costevery = 500)
+
+	#dev_loss = model.compute_mean_loss(X_dev, Y_dev)
+	if not os.path.exists("model/" + model):
+		os.makedirs("model/" + model)
+
+	#print "Unadjusted: %.03f" % exp(dev_loss)
+	#print "Adjusted for missing vocab: %.03f" % exp(adjust_loss(dev_loss, fraction_lost))
+	save("model/" + model + "/rnnlm.L.npy", model.sparams.L)
+	save("model/" + model + "/rnnlm.U.npy", model.params.U)
+	save("model/" + model + "/rnnlm.H.npy", model.params.H)
