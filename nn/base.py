@@ -397,7 +397,7 @@ class NNBase(object):
             for idx, alpha in itertools.izip(idxiter, alphaiter):
                 if counter % printevery == 0:
                     print "  Seen %d in %.02f s" % (counter, time.time() - t0)
-                if counter % costevery == 0:
+                if counter % costevery == -1:
                     if devidx != None:
                         cost = self.compute_display_loss(X[devidx], y[devidx])
                     else: cost = self.compute_display_loss(X, y)
@@ -421,11 +421,11 @@ class NNBase(object):
             return costs
 
         # Wrap-up
-        if devidx != None:
-            cost = self.compute_display_loss(X[devidx], y[devidx])
-        else: cost = self.compute_display_loss(X, y)
-        costs.append((counter, cost))
-        print "  [%d]: mean loss %g" % (counter, cost)
+        #if devidx != None:
+        #    cost = self.compute_display_loss(X[devidx], y[devidx])
+        #else: cost = self.compute_display_loss(X, y)
+        #costs.append((counter, cost))
+        #print "  [%d]: mean loss %g" % (counter, cost)
         print "SGD complete: %d examples in %.02f seconds." % (counter, time.time() - t0)
 
         return costs

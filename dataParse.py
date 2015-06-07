@@ -4,6 +4,8 @@ import os
 import multiprocessing
 import math
 import matplotlib.pyplot as plt
+import numpy as np
+import cPickle as pickle
 
 def get_status_corpus(user_status):
 	# agg = dict(list(user_status.dropna().groupby('userid')))
@@ -36,37 +38,66 @@ def get_status_corpus(user_status):
 		# 	print status
 	return corpus
 
-f = open('data/rnn_input', 'w')
+f = open('data/rnn_input_train', 'w')
+p = open('data/rnn_input_test', 'w')
+
 dictionary={}
 user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',')#, escapechar = '/', quotechar='"')
 statuses = get_status_corpus(user_status)
 print 'data cleaning done'
-total=0
-idx = 0
+personality = user_status[['ope', 'con', 'ext', 'agr', 'neu']].values
+topic = np.random.rand(len(user_status), 40)
+h0 = np.hstack((personality, topic))
+print h0.shape
+h0_train = []
+h0_test = []
+
+total = 0
+idx = -1
 for status in statuses:
 	idx += 1
 	if idx % 10000 == 0:
 		print idx
-        f.write('-DOCSTART-'+'\n')
-        for term in status:
-		punctuation = ''
-		if term[-1] == '!' or term[-1] == '?' or term[-1] == '.' or term[-1] == ',':
-			punctuation = term[-1]
-		term = re.sub(r'[^a-zA-Z0-9\s]', '', term)
-		if term != '':
-			f.write(term + '\n')
-			total += 1
-			if not term in dictionary:
-				dictionary[term] = 1
-			else:
-				dictionary[term] += 1
-		if punctuation != '':
-			f.write(punctuation + '\n')
-			total += 1
-			if not punctuation in dictionary:
-				dictionary[punctuation] = 1
-			else:
-				dictionary[punctuation] += 1
+	if np.random.rand() < 0.7:
+		f.write('-DOCSTART-'+'\n')
+		for term in status:
+			punctuation = ''
+			if term[-1] == '!' or term[-1] == '?' or term[-1] == '.' or term[-1] == ',':
+				punctuation = term[-1]
+			term = re.sub(r'[^a-zA-Z0-9\s]', '', term)
+			if term != '':
+				f.write(term + '\n')
+				total += 1
+				if not term in dictionary:
+					dictionary[term] = 1
+				else:
+					dictionary[term] += 1
+			if punctuation != '':
+				f.write(punctuation + '\n')
+				total += 1
+				if not punctuation in dictionary:
+					dictionary[punctuation] = 1
+				else:
+					dictionary[punctuation] += 1
+		h0_train.append(h0[idx, :])
+	else:
+		p.write('-DOCSTART-'+'\n')
+		for term in status:
+			punctuation = ''
+			if term[-1] == '!' or term[-1] == '?' or term[-1] == '.' or term[-1] == ',':
+				punctuation = term[-1]
+			term = re.sub(r'[^a-zA-Z0-9\s]', '', term)
+			if term != '':
+				p.write(term + '\n')
+			if punctuation != '':
+				p.write(punctuation + '\n')
+		h0_test.append(h0[idx, :])
+
+print len(h0_train)
+print len(h0_test)
+pickle.dump(h0_train, open('data/h0_train', 'wb'))
+pickle.dump(h0_test, open('data/h0_test', 'wb'))
+		
 
 
                 #b=''
@@ -91,14 +122,18 @@ for status in statuses:
                 #        else:
                 #                dictionary[c]=dictionary[c]+1
 f.close()
-print total
+p.close()
 import operator
 ########################################
 #number of our terms 5273
 #minimal occurrence 200
 #number of total tokens 58500634
 #number of our tokens 53865533
-minimal_occurrence = 500
+#3306
+#42982507
+#47819082
+
+minimal_occurrence = 600
 f = open('data/dictionary', 'w')
 fp = open('data/dictionary_other', 'w')
 
@@ -144,6 +179,8 @@ x = sorted(x.items(), key=operator.itemgetter(0), reverse=True)
 print x
 print sum([num for termcount, num in x])
 print sum([termcount * num for termcount, num in x])
+print total
+
 
 
 plt.bar(*zip(*x))

@@ -42,7 +42,7 @@ class RNNLM(NNBase):
         NNBase.__init__(self, param_dims, param_dims_sparse)
 
         #### YOUR CODE HERE ####
-        random.seed(rseed)
+        #random.seed(rseed)
         self.params.U=0.1*random.randn(*self.params.U.shape)
         self.sparams.L=0.1*random.randn(*self.sparams.L.shape)
         self.params.H=random_weight_matrix(*self.params.H.shape)
@@ -103,20 +103,20 @@ class RNNLM(NNBase):
 
         ##
         # Backward propagation through time
-        for i in range(ns-1,-1,-1):
-            y=make_onehot(ys[i], self.vdim)
-            delta1=ps[i]-y
-            self.grads.U+=outer(delta1,hs[i])
+        #for i in range(ns-1,-1,-1):
+            y = make_onehot(ys[i], self.vdim)
+            delta1 = ps[i]-y
+            self.grads.U += outer(delta1, hs[i])
             for j in range(self.bptt):
-                t=i-j
-                if t<0:
+                t = i - j
+                if t < 0:
                     break
-                if j==0:
-                    delta=(hs[t]*(1-hs[t]))*(self.params.U.T.dot(delta1))
+                if j == 0:
+                    delta = (hs[t]*(1-hs[t]))*(self.params.U.T.dot(delta1))
                 else:
-                    delta=(hs[t]*(1-hs[t]))*(self.params.H.T.dot(delta))
-                self.grads.H+=outer(delta,hs[t-1])
-                self.sgrads.L[xs[t]]=delta
+                    delta = (hs[t]*(1-hs[t]))*(self.params.H.T.dot(delta))
+                self.grads.H += outer(delta,hs[t-1])
+                self.sgrads.L[xs[t]] = delta
 
 
         #### END YOUR CODE ####
@@ -243,33 +243,3 @@ def mysoftmax(x):
     
     return x
 
-class ExtraCreditRNNLM(RNNLM):
-    """
-    Implements an improved RNN language model,
-    for better speed and/or performance.
-
-    We're not going to place any constraints on you
-    for this part, but we do recommend that you still
-    use the starter code (NNBase) framework that
-    you've been using for the NER and RNNLM models.
-    """
-
-    def __init__(self, *args, **kwargs):
-        #### YOUR CODE HERE ####
-        raise NotImplementedError("__init__() not yet implemented.")
-        #### END YOUR CODE ####
-
-    def _acc_grads(self, xs, ys):
-        #### YOUR CODE HERE ####
-        raise NotImplementedError("_acc_grads() not yet implemented.")
-        #### END YOUR CODE ####
-
-    def compute_seq_loss(self, xs, ys):
-        #### YOUR CODE HERE ####
-        raise NotImplementedError("compute_seq_loss() not yet implemented.")
-        #### END YOUR CODE ####
-
-    def generate_sequence(self, init, end, maxlen=100):
-        #### YOUR CODE HERE ####
-        raise NotImplementedError("generate_sequence() not yet implemented.")
-        #### END YOUR CODE ####

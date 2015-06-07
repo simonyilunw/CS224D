@@ -424,27 +424,33 @@ class Data:
 		Data.user_status_df = Data.read_df('user_status.csv')
 		u_status = list(Data.user_status_df['userid'])
 		personality = pd.read_csv(Data.path + 'big5.csv',sep = ',',escapechar = '\\',quotechar = '"',error_bad_lines = False)
+		del personality['item_level']
+		del personality['blocks']
+		del personality['date']
 		u_per = list(personality['userid'])
 
 		u_50 = list(set(u_status) & set(u_per) & set(list_american_ids))
 		temp = Data.user_status_df[Data.user_status_df['userid'].isin(u_50)]
 		ul = temp.groupby('userid').size()
 		u_50 = list(ul[ul>n_likes].keys())
-		print 'Num. of users %d' % len(u_50)
 
 		sample_status = Data.user_status_df[Data.user_status_df['userid'].isin(u_50)]	
 		good_status = []
 		for i, row in sample_status.iterrows():
-			if len(str(row['status_update']).split()) > 20:
+			if len(str(row['status_update']).split()) > 25: # and len(str(row['status_update']).split('.')) <= 5:
 				good_status.append(i)
 
 		sample_status = sample_status[sample_status.index.isin(good_status)]
 
-		sample_status.to_csv('data/sample_status', quotechar = '"'  )
+		#personality = personality[personality['userid'].isin(u_50)]
+		#u_50 = list(personality['userid'].drop_duplicates())
+		print 'Num. of users %d' % len(u_50)
+		#sample_status = sample_status[sample_status['userid'].isin(u_50)]
+		sample_status = sample_status.merge(personality, on = 'userid', how = 'left')
+		sample_status.to_csv('data/sample_status', quotechar = '"' ,index = False )
 		print 'Num. of status %d' % len(sample_status)
 
-		personality = personality[personality['userid'].isin(u_50)]
-		personality.to_csv('data/sample_personality', quotechar = '"')
+		#personality.to_csv('data/sample_personality', quotechar = '"')
 
 		
 		#List of pages with more than 50 likes

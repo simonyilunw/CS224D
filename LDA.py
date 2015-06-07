@@ -5,6 +5,7 @@ import os
 import multiprocessing
 import math
 import logging
+import numpy as np
 
 def clean_corpus(statuses,s_words):
 	pass
@@ -103,20 +104,33 @@ def get_status_corpus(user_status):
 
 
 
-def run_analysis_on_LDA_status(preprocess=False):
-	if preprocess == True:
+def run_analysis_on_LDA_status(step = 2):
+	if step == 0:
 		user_status = pd.read_csv(os.path.join('data', 'sample_status'), sep = ',')#, escapechar = '/', quotechar='"')
-		user_per = pd.read_csv(os.path.join('data', 'sample_personality'), sep = ',')#, escapechar = '\\', quotechar='"', error_bad_lines = False)
+		#user_per = pd.read_csv(os.path.join('data', 'sample_personality'), sep = ',')#, escapechar = '\\', quotechar='"', error_bad_lines = False)
 		statuses = get_status_corpus(user_status)
-	else:	
+	elif step == 1:	
 
 		id2word = gensim.corpora.Dictionary.load('data/lda.dict')
 		mm = gensim.corpora.MmCorpus('data/lda.mm')
 		print mm
 		#lda = gensim.models.ldamodel.LdaModel(corpus=mm, id2word=id2word, num_topics=20, update_every=1, chunksize=1000, passes=1)
-		lda = gensim.models.LdaMulticore(corpus=mm, num_topics=45, id2word=id2word, workers=8, passes = 5)
+		lda = gensim.models.LdaMulticore(corpus=mm, num_topics=40, id2word=id2word, workers=16, passes = 5)
 		lda.save('model/lda.model')
-		lda.show_topics(num_topics = 45)
+		lda.show_topics(num_topics = 40)
+	elif step == 2:
+		
+		id2word = gensim.corpora.Dictionary.load('data/lda.dict')
+		mm = gensim.corpora.MmCorpus('data/lda.mm')
+		print mm
+		lda = gensim.models.ldamodel.LdaModel.load('model/lda.model')
+		print len(mm)
+		doc_lda = np.zeros((len(mm), 40))
+		for i in xrange(len(mm)):
+			for x,y in lda[mm[i]]:
+				doc_lda[i, x] = y
+		np.save('data/doc_lda', doc_lda)
+
 
 	# freq_words = get_freq_words(df,tf, len(statuses))
 	# for word in freq_words:
@@ -160,4 +174,4 @@ def get_freq_words(df,tf,n_docs, lda=[], dictionary = {}):
 
 if __name__ == '__main__':
 	logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-	run_analysis_on_LDA_status(preprocess = False)
+	run_analysis_on_LDA_status(step = 2)
