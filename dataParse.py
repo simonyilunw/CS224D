@@ -151,6 +151,7 @@ fp = open('data/dictionary_other', 'w')
 #f.close()
 #plt.plot(*zip(*x))
 x = {}
+y = {}
 
 origin = dictionary
 dictionary = {term:termcount for (term, termcount) in dictionary.items() if termcount >= minimal_occurrence}
@@ -160,6 +161,12 @@ for (term, termcount) in dictionary.items():
 		x[termcount] += 1
 	else:
 		x[termcount] = 1
+
+for (term, termcount) in origin.items():
+	if termcount in y:
+		y[termcount] += 1
+	else:
+		y[termcount] = 1
 dict_sort = sorted(dictionary.items(), key=operator.itemgetter(1),reverse=True)
 
 for (term, termcount) in dict_sort:
@@ -177,7 +184,8 @@ for (term, termcount) in origin.items():
 fp.close()
 f.close()
 x = sorted(x.items(), key=operator.itemgetter(0), reverse=True)
-print x
+y = sorted(y.items(), key=operator.itemgetter(0), reverse=True)
+print y
 print sum([num for termcount, num in x])
 print sum([termcount * num for termcount, num in x])
 print total
@@ -185,6 +193,8 @@ print total
 
 
 plt.bar(*zip(*x))
+
+plt.xlim([1, 3000])
 
 plt.show()
 plt.savefig('data/dictionary.png')

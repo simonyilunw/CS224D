@@ -469,7 +469,7 @@ class NNBase(object):
             for idx, alpha in itertools.izip(idxiter, alphaiter):
                 if counter % printevery == 0:
                     print "  Seen %d in %.02f s" % (counter, time.time() - t0)
-                if counter % costevery == 0:
+                if counter % costevery == -1:
                     if devidx != None:
                         cost = self.compute_display_loss_rnnpt(X[devidx], y[devidx], h0[devidx])
                     else: cost = self.compute_display_loss_rnnpt(X, y, h0)
@@ -477,12 +477,12 @@ class NNBase(object):
                     print "  [%d]: mean loss %g" % (counter, cost)
 
                 if hasattr(idx, "__iter__") and len(idx) > 1: # if iterable
-                    self.train_minibatch_sgd_rnnpt(X[idx], y[idx], h[idx], alpha)
+                    self.train_minibatch_sgd_rnnpt(X[idx], y[idx], h0[idx], alpha)
                 elif hasattr(idx, "__iter__") and len(idx) == 1: # single point
                     idx = idx[0]
-                    self.train_point_sgd_rnnpt(X[idx], y[idx], h[idx], alpha)
+                    self.train_point_sgd_rnnpt(X[idx], y[idx], h0[idx], alpha)
                 else:
-                    self.train_point_sgd_rnnpt(X[idx], y[idx], h[idx], alpha)
+                    self.train_point_sgd_rnnpt(X[idx], y[idx], h0[idx], alpha)
 
                 counter += 1
         except KeyboardInterrupt as ke:

@@ -401,7 +401,7 @@ class RNNPT(NNBase):
         return J
 
 
-    def compute_loss(self, X, Y, h0):
+    def compute_loss(self, X, Y, H0):
         """
         Compute total loss over a dataset.
         (wrapper for compute_seq_loss)

@@ -115,9 +115,9 @@ def run_analysis_on_LDA_status(step = 2):
 		mm = gensim.corpora.MmCorpus('data/lda.mm')
 		print mm
 		#lda = gensim.models.ldamodel.LdaModel(corpus=mm, id2word=id2word, num_topics=20, update_every=1, chunksize=1000, passes=1)
-		lda = gensim.models.LdaMulticore(corpus=mm, num_topics=40, id2word=id2word, workers=16, passes = 5)
+		lda = gensim.models.LdaMulticore(corpus=mm, num_topics=35, id2word=id2word, workers=16, passes = 5)
 		lda.save('model/lda.model')
-		lda.show_topics(num_topics = 40)
+		lda.show_topics(num_topics = 35)
 	elif step == 2:
 		
 		id2word = gensim.corpora.Dictionary.load('data/lda.dict')
@@ -125,7 +125,7 @@ def run_analysis_on_LDA_status(step = 2):
 		print mm
 		lda = gensim.models.ldamodel.LdaModel.load('model/lda.model')
 		print len(mm)
-		doc_lda = np.zeros((len(mm), 40))
+		doc_lda = np.zeros((len(mm), 35))
 		for i in xrange(len(mm)):
 			for x,y in lda[mm[i]]:
 				doc_lda[i, x] = y
