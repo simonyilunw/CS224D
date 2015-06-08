@@ -21,7 +21,7 @@ def bleu(sentence, reference, N):
 			for r in xrange(len(reference) - n + 1):
 				all_matched = True
 				for offset in xrange(n):
-					if (sentence[s + offset] != reference[r + offset]):
+					if (sentence[s + offset] != reference[r + offset]) or sentence[s + offset] == 3 or reference[r + offset] == 3: #UUUNKKK
 						all_matched = False
 						break
 				if all_matched:
