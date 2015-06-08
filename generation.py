@@ -52,8 +52,8 @@ if __name__ == "__main__":
 	fraction_lost = 0.07923163705
 	method = "RNNPTONE"
 	#evaluation = "loss"
-	evaluation = "zero"
-	#evaluation = "three"
+	#evaluation = "zero"
+	evaluation = "three"
 
 	printTag = method + " " + evaluation + " "
  	if method == "RNNLM":
