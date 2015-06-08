@@ -82,6 +82,7 @@ if __name__ == "__main__":
 		save("model/" + method + "/rnnlm.L.npy", model.sparams.L)
 		save("model/" + method + "/rnnlm.U.npy", model.params.U)
 		save("model/" + method + "/rnnlm.H.npy", model.params.H)
+		print "RNNLM"
 
 
 	elif method == "RNNPT":
@@ -104,6 +105,7 @@ if __name__ == "__main__":
 		save("model/" + method + "/rnnlm.L.npy", model.sparams.L)
 		save("model/" + method + "/rnnlm.U.npy", model.params.U)
 		save("model/" + method + "/rnnlm.H.npy", model.params.H)
+		print "RNNPT"
 
 
 	elif method == "RNNPTONE":
@@ -126,3 +128,4 @@ if __name__ == "__main__":
 		save("model/" + method + "/rnnlm.L.npy", model.sparams.L)
 		save("model/" + method + "/rnnlm.U.npy", model.params.U)
 		save("model/" + method + "/rnnlm.H.npy", model.params.H)
+		print "RNNPTONE"

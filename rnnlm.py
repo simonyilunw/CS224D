@@ -188,49 +188,49 @@ class RNNLM(NNBase):
         return J / float(ntot)
 
 
-    # def generate_sequence(self, init, end, maxlen=100):
-    #     """
-    #     Generate a sequence from the language model,
-    #     by running the RNN forward and selecting,
-    #     at each timestep, a random word from the
-    #     a word from the emitted probability distribution.
+    def generate_sequence(self, init, end, maxlen=100):
+        """
+        Generate a sequence from the language model,
+        by running the RNN forward and selecting,
+        at each timestep, a random word from the
+        a word from the emitted probability distribution.
 
-    #     The MultinomialSampler class (in nn.math) may be helpful
-    #     here for sampling a word. Use as:
+        The MultinomialSampler class (in nn.math) may be helpful
+        here for sampling a word. Use as:
 
-    #         y = multinomial_sample(p)
+            y = multinomial_sample(p)
 
-    #     to sample an index y from the vector of probabilities p.
+        to sample an index y from the vector of probabilities p.
 
 
-    #     Arguments:
-    #         init = index of start word (word_to_num['<s>'])
-    #         end = index of end word (word_to_num['</s>'])
-    #         maxlen = maximum length to generate
+        Arguments:
+            init = index of start word (word_to_num['<s>'])
+            end = index of end word (word_to_num['</s>'])
+            maxlen = maximum length to generate
 
-    #     Returns:
-    #         ys = sequence of indices
-    #         J = total cross-entropy loss of generated sequence
-    #     """
-    #     J = 0 # total loss
-    #     ys = [init] # emitted sequence
-    #     yys=[]
-    #     #### YOUR CODE HERE ####
-    #     prev=init
-    #     h=zeros((self.hdim,1))
-    #     for i in range(maxlen):
-    #         temp=self.params.H.dot(h)+matrix(self.sparams.L[ys[i]]).T
-    #         h=sigmoid(temp)
-    #         p=softmax(self.params.U.dot(h))
-    #         prob=squeeze(asarray(p))
-    #         y = multinomial_sample(prob)
-    #         ys.append(y)
-    #         yys.append(y)
-    #         if (y==end):
-    #             break
-    #     J=self.compute_seq_loss(ys,yys)
-    #     #### YOUR CODE HERE ####
-    #     return ys, J
+        Returns:
+            ys = sequence of indices
+            J = total cross-entropy loss of generated sequence
+        """
+        J = 0 # total loss
+        ys = [init] # emitted sequence
+
+
+        #### YOUR CODE HERE ####
+        hs = zeros((maxlen + 1, self.hdim))
+        ps = zeros((maxlen, self.vdim))
+        t = 0
+        while ys[-1] != end and t < maxlen: 
+            # print ys[-1]
+            hs[t, :] = sigmoid((self.params.H.dot(hs[t - 1, :].T)).T + self.sparams.L[ys[-1], :])
+            ps[t, :] = softmax(self.params.U.dot(hs[t, :].T)).T
+            # y = argmax(ps[t, :])
+            y = multinomial_sample(ps[t, :])
+            ys.append(y)
+            J += - log(ps[t, y])
+            t += 1
+        #### YOUR CODE HERE ####
+        return ys, J
 
     # def mysoftmax(x):
     #     maxs=max(x)
@@ -425,49 +425,49 @@ class RNNPT(NNBase):
         return J / float(ntot)
 
 
-    # def generate_sequence(self, init, end, maxlen=100):
-    #     """
-    #     Generate a sequence from the language model,
-    #     by running the RNN forward and selecting,
-    #     at each timestep, a random word from the
-    #     a word from the emitted probability distribution.
+    def generate_sequence(self, init, end, maxlen=100):
+        """
+        Generate a sequence from the language model,
+        by running the RNN forward and selecting,
+        at each timestep, a random word from the
+        a word from the emitted probability distribution.
 
-    #     The MultinomialSampler class (in nn.math) may be helpful
-    #     here for sampling a word. Use as:
+        The MultinomialSampler class (in nn.math) may be helpful
+        here for sampling a word. Use as:
 
-    #         y = multinomial_sample(p)
+            y = multinomial_sample(p)
 
-    #     to sample an index y from the vector of probabilities p.
+        to sample an index y from the vector of probabilities p.
 
 
-    #     Arguments:
-    #         init = index of start word (word_to_num['<s>'])
-    #         end = index of end word (word_to_num['</s>'])
-    #         maxlen = maximum length to generate
+        Arguments:
+            init = index of start word (word_to_num['<s>'])
+            end = index of end word (word_to_num['</s>'])
+            maxlen = maximum length to generate
 
-    #     Returns:
-    #         ys = sequence of indices
-    #         J = total cross-entropy loss of generated sequence
-    #     """
-    #     J = 0 # total loss
-    #     ys = [init] # emitted sequence
-    #     yys=[]
-    #     #### YOUR CODE HERE ####
-    #     prev=init
-    #     h=zeros((self.hdim,1))
-    #     for i in range(maxlen):
-    #         temp=self.params.H.dot(h)+matrix(self.sparams.L[ys[i]]).T
-    #         h=sigmoid(temp)
-    #         p=softmax(self.params.U.dot(h))
-    #         prob=squeeze(asarray(p))
-    #         y = multinomial_sample(prob)
-    #         ys.append(y)
-    #         yys.append(y)
-    #         if (y==end):
-    #             break
-    #     J=self.compute_seq_loss(ys,yys)
-    #     #### YOUR CODE HERE ####
-    #     return ys, J
+        Returns:
+            ys = sequence of indices
+            J = total cross-entropy loss of generated sequence
+        """
+        J = 0 # total loss
+        ys = [init] # emitted sequence
+
+
+        #### YOUR CODE HERE ####
+        hs = zeros((maxlen + 1, self.hdim))
+        ps = zeros((maxlen, self.vdim))
+        t = 0
+        while ys[-1] != end and t < maxlen: 
+            # print ys[-1]
+            hs[t, :] = sigmoid((self.params.H.dot(hs[t - 1, :].T)).T + self.sparams.L[ys[-1], :])
+            ps[t, :] = softmax(self.params.U.dot(hs[t, :].T)).T
+            # y = argmax(ps[t, :])
+            y = multinomial_sample(ps[t, :])
+            ys.append(y)
+            J += - log(ps[t, y])
+            t += 1
+        #### YOUR CODE HERE ####
+        return ys, J
 
     # def mysoftmax(x):
     #     maxs=max(x)
