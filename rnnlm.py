@@ -188,7 +188,7 @@ class RNNLM(NNBase):
         return J / float(ntot)
 
 
-    def generate_sequence(self, init, end, maxlen=100):
+    def generate_sequence(self, init, end, maxlen=100, words = []):
         """
         Generate a sequence from the language model,
         by running the RNN forward and selecting,
@@ -213,23 +213,24 @@ class RNNLM(NNBase):
             J = total cross-entropy loss of generated sequence
         """
         J = 0 # total loss
+         
         ys = [init] # emitted sequence
+        if len(words) > 0:
+            ys.extend(words)
 
-
-        #### YOUR CODE HERE ####
         hs = zeros((maxlen + 1, self.hdim))
         ps = zeros((maxlen, self.vdim))
         t = 0
-        while ys[-1] != end and t < maxlen: 
+        while ys[t] != end and t < maxlen: 
             # print ys[-1]
-            hs[t, :] = sigmoid((self.params.H.dot(hs[t - 1, :].T)).T + self.sparams.L[ys[-1], :])
+            hs[t, :] = sigmoid((self.params.H.dot(hs[t - 1, :].T)).T + self.sparams.L[ys[t], :])
             ps[t, :] = softmax(self.params.U.dot(hs[t, :].T)).T
             # y = argmax(ps[t, :])
             y = multinomial_sample(ps[t, :])
-            ys.append(y)
+            if t >= len(words):
+                ys.append(y)
             J += - log(ps[t, y])
             t += 1
-        #### YOUR CODE HERE ####
         return ys, J
 
     # def mysoftmax(x):
@@ -425,7 +426,7 @@ class RNNPT(NNBase):
         return J / float(ntot)
 
 
-    def generate_sequence(self, init, end, h0, maxlen=100):
+    def generate_sequence(self, init, end, h0, maxlen=100, words = []):
         """
         Generate a sequence from the language model,
         by running the RNN forward and selecting,
@@ -450,20 +451,23 @@ class RNNPT(NNBase):
             J = total cross-entropy loss of generated sequence
         """
         J = 0 # total loss
+         
         ys = [init] # emitted sequence
-
+        if len(words) > 0:
+            ys.extend(words)
 
         hs = zeros((maxlen + 1, self.hdim))
-	hs[-1] = h0
+        hs[-1] = h0
         ps = zeros((maxlen, self.vdim))
         t = 0
-        while ys[-1] != end and t < maxlen: 
+        while ys[t] != end and t < maxlen: 
             # print ys[-1]
-            hs[t, :] = sigmoid((self.params.H.dot(hs[t - 1, :].T)).T + self.sparams.L[ys[-1], :])
+            hs[t, :] = sigmoid((self.params.H.dot(hs[t - 1, :].T)).T + self.sparams.L[ys[t], :])
             ps[t, :] = softmax(self.params.U.dot(hs[t, :].T)).T
             # y = argmax(ps[t, :])
             y = multinomial_sample(ps[t, :])
-            ys.append(y)
+            if t >= len(words):
+                ys.append(y)
             J += - log(ps[t, y])
             t += 1
         return ys, J

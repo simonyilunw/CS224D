@@ -54,6 +54,8 @@ if __name__ == "__main__":
 	#evaluation = "loss"
 	evaluation = "zero"
 	#evaluation = "three"
+
+	printTag = method + " " + evaluation + " "
  	if method == "RNNLM":
 		
 		model = RNNLM(L0, U0 = L0, alpha=0.1,  bptt=3)
@@ -71,20 +73,42 @@ if __name__ == "__main__":
 			gram3 = zeros(len(Y_dev))
 			for i in xrange(len(Y_dev)):
 				if i % 1000 == 0:
-					print i
+					print printTag + str(i)
 				seq, J = model.generate_sequence(word_to_num["<s>"], 
 										 word_to_num["</s>"], 
 										 maxlen=100)
 				gram1[i] = bleu(seq, Y_dev[i], 1)
 				gram2[i] = bleu(seq, Y_dev[i], 2)	
 				gram3[i] = bleu(seq, Y_dev[i], 3)
+			print printTag
+			print mean(gram1)
+			print mean(gram2)
+			print mean(gram3)
+		elif evaluation == "three":
+			gram1 = zeros(len(Y_dev))
+			gram2 = zeros(len(Y_dev))
+			gram3 = zeros(len(Y_dev))
+			for i in xrange(len(Y_dev)):
+				if i % 1000 == 0:
+					print printTag + str(i)
+				if len(Y_dev[i]) >= 3:
+					words = Y_dev[i][:3]
+				else:
+					words = Y_dev[i]
+				seq, J = model.generate_sequence(word_to_num["<s>"], 
+										 word_to_num["</s>"], 
+										 maxlen=100, words = words)
+				gram1[i] = bleu(seq, Y_dev[i], 1)
+				gram2[i] = bleu(seq, Y_dev[i], 2)	
+				gram3[i] = bleu(seq, Y_dev[i], 3)
+			print printTag
+			print mean(gram1)
+			print mean(gram2)
+			print mean(gram3)
 			#print J
 			#print " ".join(seq_to_words(seq))
 		
-		print "RNNLM %s" % evaluation
-		print mean(gram1)
-		print mean(gram2)
-		print mean(gram3)
+		
 
 
 	elif method == "RNNPT" or method == "RNNPTONE":
@@ -110,23 +134,45 @@ if __name__ == "__main__":
 			gram3 = zeros(len(Y_dev))
 			for i in xrange(len(Y_dev)):
 				if i % 1000 == 0:
-					print i
+					print printTag + str(i)
 				seq, J = model.generate_sequence(word_to_num["<s>"], 
 										 word_to_num["</s>"], 
 										 h0_test[i], maxlen=100)
 				gram1[i] = bleu(seq, Y_dev[i], 1)
 				gram2[i] = bleu(seq, Y_dev[i], 2)	
 				gram3[i] = bleu(seq, Y_dev[i], 3)
-				if len(seq) >= 7 and gram1[i] > 0.5:
+				if len(seq) >= 10 and gram1[i] > 0.5:
 					print " ".join(seq_to_words(seq))
 					print " ".join(seq_to_words(Y_dev[i]))
-		if method == "RNNPT":
-			print "RNNPT %s" % evaluation
-		elif method == "RNNPTONE":
-			print "RNNPTONE %s" % evaluation
+			print printTag
 
-		print mean(gram1)
-		print mean(gram2)
-		print mean(gram3)
+			print mean(gram1)
+			print mean(gram2)
+			print mean(gram3)
+		elif evaluation == "three":
+			gram1 = zeros(len(Y_dev))
+			gram2 = zeros(len(Y_dev))
+			gram3 = zeros(len(Y_dev))
+			for i in xrange(len(Y_dev)):
+				if i % 1000 == 0:
+					print printTag + str(i)
+				if len(Y_dev[i]) >= 3:
+					words = Y_dev[i][:3]
+				else:
+					words = Y_dev[i]
+				seq, J = model.generate_sequence(word_to_num["<s>"], 
+										 word_to_num["</s>"], 
+										 h0_test[i], maxlen=100, words = words)
+				gram1[i] = bleu(seq, Y_dev[i], 1)
+				gram2[i] = bleu(seq, Y_dev[i], 2)	
+				gram3[i] = bleu(seq, Y_dev[i], 3)
+				if len(seq) >= 10 and gram1[i] > 0.5:
+					print " ".join(seq_to_words(seq))
+					print " ".join(seq_to_words(Y_dev[i]))
+			print printTag
+
+			print mean(gram1)
+			print mean(gram2)
+			print mean(gram3)
 
 
