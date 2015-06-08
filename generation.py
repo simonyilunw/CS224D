@@ -4,6 +4,7 @@ from rnnlm import RNNLM, RNNPT
 from data_utils import utils as du
 import pandas as pd
 from wordGeneration import toONE, adjust_loss
+import cPickle as pickle
 
 
 
@@ -29,7 +30,7 @@ if __name__ == "__main__":
 	hdim = 40
 	L0 = zeros((vocabsize, hdim))
 	fraction_lost = 0.07923163705
-	method = RNNLM
+	method = "RNNPT"
 	evaluation = "loss"
 	#evaluation = "zero"
 	#evaluation = "three"
@@ -45,13 +46,17 @@ if __name__ == "__main__":
 			print "Unadjusted: %.03f" % exp(dev_loss)
 			print "Adjusted for missing vocab: %.03f" % exp(adjust_loss(dev_loss, fraction_lost))
 		elif evaluation == "zero":
-			seq, J = model.generate_sequence(word_to_num["<s>"], 
-									 word_to_num["</s>"], 
-									 maxlen=100)
-			print J
-			print " ".join(seq_to_words(seq))
+			overlap = zeros(len(Y_dev))
+			for i in xrange(len(Y_dev)):
+				seq, J = model.generate_sequence(word_to_num["<s>"], 
+										 word_to_num["</s>"], 
+										 maxlen=100)
+				print seq
+				print Y_dev[i]
+			#print J
+			#print " ".join(seq_to_words(seq))
 		
-		print "RNNLM"
+		print "RNNLM %s" % evaluation
 
 
 	elif method == "RNNPT":
@@ -63,12 +68,11 @@ if __name__ == "__main__":
 		model.sparams.L = load("model/" + method + "/rnnlm.L.npy")
 		model.params.U = load("model/" + method + "/rnnlm.U.npy")
 		model.params.H = load("model/" + method + "/rnnlm.H.npy" )
-		dev_loss = model.compute_mean_loss(X_dev, Y_dev, h0_test)
-		
-
-		print "Unadjusted: %.03f" % exp(dev_loss)
-		print "Adjusted for missing vocab: %.03f" % exp(adjust_loss(dev_loss, fraction_lost))
-		print "RNNPT"
+		if evaluation == "loss":
+			dev_loss = model.compute_mean_loss(X_dev, Y_dev, h0_test)
+			print "Unadjusted: %.03f" % exp(dev_loss)
+			print "Adjusted for missing vocab: %.03f" % exp(adjust_loss(dev_loss, fraction_lost))
+		print "RNNPT %s" % evaluation
 
 
 	elif method == "RNNPTONE":
@@ -79,9 +83,10 @@ if __name__ == "__main__":
 		model.sparams.L = load("model/" + method + "/rnnlm.L.npy")
 		model.params.U = load("model/" + method + "/rnnlm.U.npy")
 		model.params.H = load("model/" + method + "/rnnlm.H.npy" )
-		dev_loss = model.compute_mean_loss(X_dev, Y_dev, h0_test)
-		print "Unadjusted: %.03f" % exp(dev_loss)
-		print "Adjusted for missing vocab: %.03f" % exp(adjust_loss(dev_loss, fraction_lost))
-		print "RNNPTONE"
+		if evaluation == "loss":
+			dev_loss = model.compute_mean_loss(X_dev, Y_dev, h0_test)
+			print "Unadjusted: %.03f" % exp(dev_loss)
+			print "Adjusted for missing vocab: %.03f" % exp(adjust_loss(dev_loss, fraction_lost))
+		print "RNNPTONE  %s" % evaluation
 
 
