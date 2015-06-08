@@ -425,7 +425,7 @@ class RNNPT(NNBase):
         return J / float(ntot)
 
 
-    def generate_sequence(self, init, end, maxlen=100):
+    def generate_sequence(self, init, end, h0, maxlen=100):
         """
         Generate a sequence from the language model,
         by running the RNN forward and selecting,
@@ -453,8 +453,8 @@ class RNNPT(NNBase):
         ys = [init] # emitted sequence
 
 
-        #### YOUR CODE HERE ####
         hs = zeros((maxlen + 1, self.hdim))
+	hs[-1] = h0
         ps = zeros((maxlen, self.vdim))
         t = 0
         while ys[-1] != end and t < maxlen: 
@@ -466,18 +466,5 @@ class RNNPT(NNBase):
             ys.append(y)
             J += - log(ps[t, y])
             t += 1
-        #### YOUR CODE HERE ####
         return ys, J
-
-    # def mysoftmax(x):
-    #     maxs=max(x)
-    #     for i in range(len(x)):
-    #         x[i]-=maxs[i]
-    #     x=exp(x)
-    #     sums=sum(x,axis=1)
-    #     for i in range(a):
-    #         x[i]/=sums[i]
-    
-    #     return x
-
 
